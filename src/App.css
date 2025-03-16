@@ -1,4 +1,4 @@
-#root {
+/* #root {
   max-width: 1280px;
   margin: 0 auto;
   padding: 2rem;
@@ -39,4 +39,68 @@
 
 .read-the-docs {
   color: #888;
+} */
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
 }
+.fc-button-group button {
+  background: #fff!important;
+  color: #000!important;
+}
+.fc-timeGridDay-button, .fc-timeGridWeek-button, .fc-dayGridMonth-button, .fc-dayGridYear-button{
+  border: none!important;
+}
+
+.fc-timeGridDay-button.fc-button-active, .fc-timeGridWeek-button.fc-button-active, .fc-dayGridMonth-button.fc-button-active, .fc-dayGridYear-button.fc-button-active{
+  border-bottom: 2px solid blue!important;
+}
+
+.fc-timeGridDay-button.fc-button-active:focus, .fc-timeGridWeek-button.fc-button-active:focus, .fc-dayGridMonth-button.fc-button-active:focus, .fc-dayGridYear-button.fc-button-active:focus{
+  box-shadow: none!important;
+}
+
+.fc-v-event {
+  background-color: unset;
+  border: none;
+}
+
+.notifi {
+  position: absolute;
+  top: -3px;
+  right: -2px;
+  z-index: 999;
+  background: #d4d406;
+  padding: 5px;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+.customTooltip {
+  background: #fff !important;
+  color: #000 !important;
+  box-shadow: 0px 0px 6px 0px;
+  padding: 10px 0px !important;
+}
+
+.single-event-item {
+  border-left: 10px solid blue;
+  border-bottom: 1px solid grey;
+  margin-bottom: 5px;
+  padding: 10px;
+}
+.single-event-item:hover{
+  background-color: grey!important;
+}
+
+.single-event-item:last-child {
+  border-bottom: none !important;
+}
+
+/* .single-event-job-request {}
+
+.single-event-user {}
+
+.single-event-user {} */
