@@ -11,8 +11,11 @@ import { format } from 'date-fns';
 import Modal from 'react-modal';
 
 const EventItem = ({ eventItem, handleEventItemClick }) => {
-  function test(params) {
-    console.log('test function',params);
+  function handleClick(e, eventItem) {
+    e.preventDefault();
+    e.stopPropagation();
+    handleEventItemClick(eventItem);
+    // console.log('test function', params);
   }
   const start = new Date(eventItem.start)
   const end = new Date(eventItem.end)
@@ -21,7 +24,7 @@ const EventItem = ({ eventItem, handleEventItemClick }) => {
   const timeStringEnd = format(end, 'HH:mm')
 
   return (
-    <div className={'single-event-item'} onClick={() => test(eventItem)}>
+    <div className={'single-event-item'} onClick={(e) => handleClick(e, eventItem)}>
       <div className='single-event-job-request'>
         {eventItem.job_id.jobRequest_Title}
       </div>
@@ -31,6 +34,7 @@ const EventItem = ({ eventItem, handleEventItemClick }) => {
       <div className='single-event-user'>
         Date: {dateString} | Time: {timeStringStart} - {timeStringEnd}
       </div>
+      {/* <button onClick={test}> test</button> */}
     </div>
   )
 }
@@ -46,8 +50,21 @@ function App() {
   const [modalIsOpen, setIsOpen] = useState(false);
   const [eventItem, setEventItem] = useState(null);
 
-  function handleEventItemClick(event) {
-    setEventItem(event);
+  function handleEventItemClick(eventItem) {
+
+    const start = new Date(eventItem.start)
+    const end = new Date(eventItem.end)
+    const dateString = format(start, 'dd MMM yyyy')
+    const timeStringStart = format(start, 'HH:mm a..aa')
+    const timeStringEnd = format(end, 'HH:mm a..aa')
+    const data = {
+      candidate: eventItem.user_det.candidate.candidate_firstName,
+      position: eventItem.user_det.job_id.jobRequest_Title,
+      date: dateString,
+      time: `${timeStringStart} - ${timeStringEnd}`,
+      url: eventItem.link,
+    }
+    setEventItem(data);
     openModal();
   }
   function openModal() {
@@ -123,7 +140,7 @@ function App() {
           data-tooltip-place='right'
           className='customTooltip'
           closeEvents={{click: false}}
-          afterHide={()=>handleEventItemClick(eventInfo)}
+          // afterHide={()=>handleEventItemClick(eventInfo)}
         >
           <EventsCollection events={eventInfo.event._def.extendedProps.events} handleEventItemClick={handleEventItemClick} />
         </Tooltip>
@@ -152,27 +169,36 @@ function App() {
       {eventItem && <Modal
         isOpen={modalIsOpen}
         onRequestClose={closeModal}
-        style={{ backgroundColor: 'red' }}
+        // style={{ backgroundColor: 'red', zIndex: 1 }}
         contentLabel="Example Modal"
+        style={{
+          overlay: {
+            backgroundColor: '#808080b5'
+          },
+          content: {
+            color: '#000'
+          },
+          width: '40%',
+        }}
       >
-        <button onClick={closeModal}>close</button>
+      <div style={{display: 'flex', justifyContent:'end'}}><button style={{backgroundColor:'blue',borderRadius:'50%',padding:'10px', color:'#fff', border: 'none'}} onClick={closeModal}>X</button></div>
         <div className={'single-event-model'}>
           <div className='single-event-model-wrapper'>
             <div className='modal-left'>
-              <p>Interview With: {eventItem.user_det.candidate.candidate_firstName}</p>
-              <p>Position: {eventItem.user_det.job_id.jobRequest_Title}</p>
+              <p>Interview With: {eventItem.candidate}</p>
+              <p>Position: {eventItem.position}</p>
               <p>Created By: </p>
-              <p>Interview Date: {dateString}</p>
-              <p>Interview Time: {timeStringStart} - {timeStringEnd}</p>
+              <p>Interview Date: {eventItem.date}</p>
+              <p>Interview Time: {eventItem.time}</p>
               <p> Inertview viaL Google Meet</p>
-              <button className='button--resume'> Resume.docx</button>
-              <button className='button--adhar'> Resume.docx</button>
+              <button className='button--resume btn-primary'> Resume.docx</button><br></br>
+              <button className='button--adhar btn-primary'> AadharCard</button>
             </div>
             <div className='model-right'>
               <div>
-                Image
+                <img src='./google-meet-logo.png'></img>
               </div>
-              <button> Join</button>
+              <button className='btn btn-primary' onClick={()=>window.open(`${eventItem.url}`, '_blank')}> Join</button>
             </div>
           </div>
         </div>
