@@ -9,6 +9,8 @@ import interactionPlugin from "@fullcalendar/interaction"
 import { Tooltip } from 'react-tooltip';
 import { format } from 'date-fns';
 import Modal from 'react-modal';
+import { MdDeleteOutline } from "react-icons/md";
+import { RiEditFill } from "react-icons/ri";
 
 const EventItem = ({ eventItem, handleEventItemClick }) => {
   function handleClick(e, eventItem) {
@@ -17,6 +19,17 @@ const EventItem = ({ eventItem, handleEventItemClick }) => {
     handleEventItemClick(eventItem);
     // console.log('test function', params);
   }
+  function handleEdit(id) {
+    console.log(id);
+  }
+  function handleDelete(id) {
+    console.log(id);
+    const deleteById = EVENTS.filter(item => item.id !== id);
+    console.log(deleteById);
+    console.log(EVENTS);
+  }
+  console.log(eventItem);
+
   const start = new Date(eventItem.start)
   const end = new Date(eventItem.end)
   const dateString = format(start, 'dd MMM yyyy')
@@ -24,18 +37,24 @@ const EventItem = ({ eventItem, handleEventItemClick }) => {
   const timeStringEnd = format(end, 'HH:mm')
 
   return (
-    <div className={'single-event-item'} onClick={(e) => handleClick(e, eventItem)}>
-      <div className='single-event-job-request'>
-        {eventItem.job_id.jobRequest_Title}
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'end', zIndex: 999, marginRight: '10px' }}>
+        <div style={{ marginRight: '3px', color: 'green', cursor: 'pointer' }} onClick={() => handleEdit(eventItem.id)}><RiEditFill /></div>
+        <div style={{ color: 'red', cursor: 'pointer' }} onClick={() => handleDelete(eventItem.id)}><MdDeleteOutline /></div>
       </div>
-      <div className='single-event-user'>
-        {eventItem.summary} | Interviewer: {eventItem.user_det.handled_by.firstName}
+      <div className={'single-event-item'} onClick={(e) => handleClick(e, eventItem)} style={{cursor: 'pointer'}}>
+        <div className='single-event-job-request'>
+          {eventItem.job_id.jobRequest_Title}
+        </div>
+        <div className='single-event-user'>
+          {eventItem.summary} | Interviewer: {eventItem.user_det.handled_by.firstName}
+        </div>
+        <div className='single-event-user'>
+          Date: {dateString} | Time: {timeStringStart} - {timeStringEnd}
+        </div>
       </div>
-      <div className='single-event-user'>
-        Date: {dateString} | Time: {timeStringStart} - {timeStringEnd}
-      </div>
-      {/* <button onClick={test}> test</button> */}
     </div>
+
   )
 }
 
@@ -63,6 +82,7 @@ function App() {
       date: dateString,
       time: `${timeStringStart} - ${timeStringEnd}`,
       url: eventItem.link,
+      createdBy: eventItem.user_det.handled_by.firstName
     }
     setEventItem(data);
     openModal();
@@ -111,10 +131,6 @@ function App() {
   function renderEventContent(eventInfo) {
     const items = eventInfo.event._def.extendedProps.events[0];
     const length = eventInfo.event._def.extendedProps.events.length
-
-
-
-
     const jobTitle = items.job_id.jobRequest_Title;
     const interviewer = items.user_det.handled_by.firstName
     const startDate = new Date(items.start)
@@ -139,8 +155,8 @@ function App() {
           events={['click']}
           data-tooltip-place='right'
           className='customTooltip'
-          closeEvents={{click: false}}
-          // afterHide={()=>handleEventItemClick(eventInfo)}
+          closeEvents={{ click: false }}
+        // afterHide={()=>handleEventItemClick(eventInfo)}
         >
           <EventsCollection events={eventInfo.event._def.extendedProps.events} handleEventItemClick={handleEventItemClick} />
         </Tooltip>
@@ -166,43 +182,43 @@ function App() {
         height={'90vh'}
       />
 
-      {eventItem && <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        // style={{ backgroundColor: 'red', zIndex: 1 }}
-        contentLabel="Example Modal"
-        style={{
-          overlay: {
-            backgroundColor: '#808080b5'
-          },
-          content: {
-            color: '#000'
-          },
-          width: '40%',
-        }}
-      >
-      <div style={{display: 'flex', justifyContent:'end'}}><button style={{backgroundColor:'blue',borderRadius:'50%',padding:'10px', color:'#fff', border: 'none'}} onClick={closeModal}>X</button></div>
-        <div className={'single-event-model'}>
-          <div className='single-event-model-wrapper'>
-            <div className='modal-left'>
-              <p>Interview With: {eventItem.candidate}</p>
-              <p>Position: {eventItem.position}</p>
-              <p>Created By: </p>
-              <p>Interview Date: {eventItem.date}</p>
-              <p>Interview Time: {eventItem.time}</p>
-              <p> Inertview viaL Google Meet</p>
-              <button className='button--resume btn-primary'> Resume.docx</button><br></br>
-              <button className='button--adhar btn-primary'> AadharCard</button>
-            </div>
-            <div className='model-right'>
-              <div>
-                <img src='./google-meet-logo.png'></img>
+      {eventItem
+        && <Modal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          contentLabel="Example Modal"
+          style={{
+            overlay: {
+              backgroundColor: '#808080b5'
+            },
+            content: {
+              color: '#000'
+            },
+            width: '40%',
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'end' }}><button style={{ backgroundColor: 'blue', borderRadius: '50%', padding: '10px', color: '#fff', border: 'none' }} onClick={closeModal}>X</button></div>
+          <div className={'single-event-model'}>
+            <div className='single-event-model-wrapper'>
+              <div className='modal-left'>
+                <p>Interview With: {eventItem.candidate}</p>
+                <p>Position: {eventItem.position}</p>
+                <p>Created By: {eventItem.createdBy}</p>
+                <p>Interview Date: {eventItem.date}</p>
+                <p>Interview Time: {eventItem.time}</p>
+                <p> Inertview viaL Google Meet</p>
+                <button className='button--resume btn-primary'> Resume.docx</button><br></br>
+                <button className='button--adhar btn-primary'> AadharCard</button>
               </div>
-              <button className='btn btn-primary' onClick={()=>window.open(`${eventItem.url}`, '_blank')}> Join</button>
+              <div className='model-right'>
+                <div>
+                  <img src='./google-meet-logo.png'></img>
+                </div>
+                <button className='btn btn-primary' onClick={() => window.open(`${eventItem.url}`, '_blank')}> Join</button>
+              </div>
             </div>
           </div>
-        </div>
-      </Modal>
+        </Modal>
       }
     </>
   )
