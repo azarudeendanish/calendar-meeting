@@ -7,42 +7,36 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction"
 import { Tooltip } from 'react-tooltip';
-import { format } from 'date-fns';
+import { format, setDate } from 'date-fns';
 import Modal from 'react-modal';
 import { MdDeleteOutline } from "react-icons/md";
 import { RiEditFill } from "react-icons/ri";
+import { MdOutlineFileDownload } from "react-icons/md";
+import { FaEye } from "react-icons/fa";
+
 
 const EventItem = ({ eventItem, handleEventItemClick }) => {
-  function handleClick(e, eventItem) {
+  function handleClick(e, eventItem, eventType) {
     e.preventDefault();
     e.stopPropagation();
-    handleEventItemClick(eventItem);
-    // console.log('test function', params);
+    handleEventItemClick(eventItem, eventType);
   }
-  function handleEdit(id) {
-    console.log(id);
-  }
-  function handleDelete(id) {
-    console.log(id);
-    const deleteById = EVENTS.filter(item => item.id !== id);
-    console.log(deleteById);
-    console.log(EVENTS);
-  }
+
   console.log(eventItem);
 
   const start = new Date(eventItem.start)
   const end = new Date(eventItem.end)
   const dateString = format(start, 'dd MMM yyyy')
-  const timeStringStart = format(start, 'HH:mm ')
-  const timeStringEnd = format(end, 'HH:mm')
+  const timeStringStart = format(start, 'HH:mm a')
+  const timeStringEnd = format(end, 'HH:mm a')
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'end', zIndex: 999, marginRight: '10px' }}>
-        <div style={{ marginRight: '3px', color: 'green', cursor: 'pointer' }} onClick={() => handleEdit(eventItem.id)}><RiEditFill /></div>
-        <div style={{ color: 'red', cursor: 'pointer' }} onClick={() => handleDelete(eventItem.id)}><MdDeleteOutline /></div>
+        <div style={{ marginRight: '3px', color: 'green', cursor: 'pointer' }} onClick={(e) => handleClick(e, eventItem, 'open_edit')}><RiEditFill /></div>
+        <div style={{ color: 'red', cursor: 'pointer' }} onClick={(e) => handleClick(e, eventItem, 'delete')}><MdDeleteOutline /></div>
       </div>
-      <div className={'single-event-item'} onClick={(e) => handleClick(e, eventItem)} style={{cursor: 'pointer'}}>
+      <div className={'single-event-item'} onClick={(e) => handleClick(e, eventItem, 'open')} style={{ cursor: 'pointer' }}>
         <div className='single-event-job-request'>
           {eventItem.job_id.jobRequest_Title}
         </div>
@@ -67,25 +61,46 @@ const EventsCollection = ({ events, handleEventItemClick }) => {
 }
 function App() {
   const [modalIsOpen, setIsOpen] = useState(false);
+  const [editModalIsOpen, setEditIsOpen] = useState(false);
   const [eventItem, setEventItem] = useState(null);
+  const [events, setEvents] = useState(EVENTS);
 
-  function handleEventItemClick(eventItem) {
+  const handleEditEvent = (updatedEvent) => {
+    const updatedEvents = events.map((event) => event.id === updatedEvent.id ? updatedEvent : event);
+    setEvents([...updatedEvents])
+  };
 
-    const start = new Date(eventItem.start)
-    const end = new Date(eventItem.end)
-    const dateString = format(start, 'dd MMM yyyy')
-    const timeStringStart = format(start, 'HH:mm a..aa')
-    const timeStringEnd = format(end, 'HH:mm a..aa')
-    const data = {
-      candidate: eventItem.user_det.candidate.candidate_firstName,
-      position: eventItem.user_det.job_id.jobRequest_Title,
-      date: dateString,
-      time: `${timeStringStart} - ${timeStringEnd}`,
-      url: eventItem.link,
-      createdBy: eventItem.user_det.handled_by.firstName
+  const handleDeleteEvent = (item) => {
+    const filteredEvents = events.filter((event) => event.id !== item.id);
+    setEvents([...filteredEvents]);
+  };
+  function handleEventItemClick(eventItem, eventType) {
+    if (eventType === 'open_edit') {
+      let startDate = new Date(eventItem.start)
+      let start = startDate.setDate(startDate.getDate() + 1)
+      let endDate = new Date(eventItem.end)
+      let end = endDate.setDate(endDate.getDate() + 1)
+      // handleEditEvent({ ...eventItem , start: "2025-03-20T18:00:00+05:30",  end: "2025-03-20T18:40:00+05:30" })
+      handleEditEvent({ ...eventItem, start, end })
+    } else if (eventType === 'delete') {
+      handleDeleteEvent(eventItem);
+    } else {
+      const start = new Date(eventItem.start)
+      const end = new Date(eventItem.end)
+      const dateString = format(start, 'dd MMM yyyy')
+      const timeStringStart = format(start, 'HH:mm a')
+      const timeStringEnd = format(end, 'HH:mm a')
+      const data = {
+        candidate: eventItem.user_det.candidate.candidate_firstName,
+        position: eventItem.user_det.job_id.jobRequest_Title,
+        date: dateString,
+        time: `${timeStringStart} - ${timeStringEnd}`,
+        url: eventItem.link,
+        createdBy: eventItem.user_det.handled_by.firstName
+      }
+      setEventItem(data);
+      openModal();
     }
-    setEventItem(data);
-    openModal();
   }
   function openModal() {
     setIsOpen(true);
@@ -95,7 +110,7 @@ function App() {
   }
 
   const eventMap = {};
-  EVENTS.forEach((item) => {
+  events.forEach((item) => {
     const itemDate = new Date(item.start);
     const dateString = `${itemDate.getFullYear()}-${itemDate.getMonth() + 1}-${itemDate.getDate()}`;
     if (!eventMap.hasOwnProperty(dateString)) {
@@ -115,18 +130,6 @@ function App() {
     }
   });
   const calendarEvents = Object.values(eventMap);
-  const calendarEventss = EVENTS.map((item) => {
-    const itemDate = new Date(item.start);
-    return {
-      id: item.id,
-      title: item.summary,
-      start: new Date(itemDate),
-      end: new Date(item.end),
-      text: item.desc,
-      extendedProps: { ...item },
-      groupId: `${itemDate.getFullYear()}-${itemDate.getMonth() + 1}-${itemDate.getDate()}`,
-    }
-  })
 
   function renderEventContent(eventInfo) {
     const items = eventInfo.event._def.extendedProps.events[0];
@@ -164,7 +167,32 @@ function App() {
       </>
     )
   }
+  function adjustSlotHeight() {
+    setTimeout(() => {
+      let timeSlots = document.querySelectorAll(".fc-timegrid-slot");
+      let events = document.querySelectorAll(".fc-event");
 
+      // Reset to default height
+      timeSlots.forEach(slot => (slot.style.height = "40px")); 
+
+      events.forEach(event => {
+          let eventStart = new Date(event.getAttribute("data-start"));
+          let eventEnd = new Date(event.getAttribute("data-end"));
+          let durationInMinutes = (eventEnd - eventStart) / 60000;
+
+          let slotHeight = 40; // Default slot height
+          let requiredHeight = (durationInMinutes / 30) * slotHeight;
+
+          event.style.height = `${requiredHeight}px`;
+      });
+
+      // Auto-adjust FullCalendar height
+      let calendarWrapper = document.querySelector(".fc-timegrid-body");
+      if (calendarWrapper) {
+          calendarWrapper.style.height = "auto";
+      }
+  }, 100);
+}
   return (
     <>
       <FullCalendar
@@ -180,6 +208,9 @@ function App() {
         }}
         title={{ year: 'numeric', month: 'long' }}
         height={'90vh'}
+        expandRows= {'true'}
+        slotHeight =  {100}
+        eventDidMount = {adjustSlotHeight()}
       />
 
       {eventItem
@@ -194,7 +225,7 @@ function App() {
             content: {
               color: '#000'
             },
-            width: '40%',
+            width: '40%', boxShadow: '0px 0px 30px 10px grey'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'end' }}><button style={{ backgroundColor: 'blue', borderRadius: '50%', padding: '10px', color: '#fff', border: 'none' }} onClick={closeModal}>X</button></div>
@@ -207,8 +238,8 @@ function App() {
                 <p>Interview Date: {eventItem.date}</p>
                 <p>Interview Time: {eventItem.time}</p>
                 <p> Inertview viaL Google Meet</p>
-                <button className='button--resume btn-primary'> Resume.docx</button><br></br>
-                <button className='button--adhar btn-primary'> AadharCard</button>
+                <button className='button--resume btn-primary-outline'> Resume.docx <FaEye /> <MdOutlineFileDownload /></button>
+                <button className='button--adhar btn-primary-outline'> AadharCard <FaEye /> <MdOutlineFileDownload /> </button>
               </div>
               <div className='model-right'>
                 <div>
@@ -220,6 +251,8 @@ function App() {
           </div>
         </Modal>
       }
+       
+
     </>
   )
 }

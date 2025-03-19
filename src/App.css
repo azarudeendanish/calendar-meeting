@@ -132,14 +132,42 @@
 .single-event-model-wrapper{display: flex;}
 .single-event-model-wrapper .model-left{
   border-right: 1px solid black;
+  width: 50%;
 }
 .btn-primary {
-  background: blue;
+  background: var(--brandColor);
   color: #fff;
   padding: 10px 20px;
   border-radius: 4px;
   border: none;
   margin-bottom: 10px;
+}
+.btn-primary-outline {
+  background: #fff;
+  color: var(--brandColor);
+  padding: 10px 20px;
+  border-radius: 4px;
+  border: 1px solid var(--brandColor);
+  margin-bottom: 10px;
+  gap: 10px;
+  display: flex
+;
+}
+.ReactModalPortal .single-event-model-wrapper {
+  display: flex;
+  justify-content: space-evenly;
+}
+.ReactModalPortal .single-event-model {
+  border: 1px solid #cccccc;
+  padding: 15px;
+}
+.ReactModalPortal .model-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid #ccc;
+  align-items: center;
+  width: 50%;
 }
 /* .single-event-job-request {}
 
