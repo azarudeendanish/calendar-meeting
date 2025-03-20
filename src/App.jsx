@@ -14,15 +14,13 @@ import { RiEditFill } from "react-icons/ri";
 import { MdOutlineFileDownload } from "react-icons/md";
 import { FaEye } from "react-icons/fa";
 
-
+const EXCLUDE_HEIGHT = ['dayGridMonth', 'dayGridYear']
 const EventItem = ({ eventItem, handleEventItemClick }) => {
   function handleClick(e, eventItem, eventType) {
     e.preventDefault();
     e.stopPropagation();
     handleEventItemClick(eventItem, eventType);
   }
-
-  console.log(eventItem);
 
   const start = new Date(eventItem.start)
   const end = new Date(eventItem.end)
@@ -60,7 +58,6 @@ const EventsCollection = ({ events, handleEventItemClick }) => {
 }
 function App() {
   const [modalIsOpen, setIsOpen] = useState(false);
-  const [editModalIsOpen, setEditIsOpen] = useState(false);
   const [eventItem, setEventItem] = useState(null);
   const [events, setEvents] = useState(EVENTS);
 
@@ -140,6 +137,9 @@ function App() {
     const time = `${formatTime(startDate)} - ${formatTime(endDate)}`
     const startDateAll = `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`
 
+    const meetingHours = endDate.getTime() - startDate.getTime();
+    const heightOfEvent = (meetingHours / (60 * 60 * 1000)) * 120;
+
     function formatTime(date) {
       let hours = date.getHours();
       let minutes = date.getMinutes();
@@ -151,7 +151,7 @@ function App() {
       return strTime;
     }
     return (
-      <>
+      <div className='eventHeight' style={{ height: `${!EXCLUDE_HEIGHT.includes(eventInfo.view.type)}` ? `${heightOfEvent}px`: 'auto' }}>
         <Tooltip
           id={`my-tooltip-click-${startDateAll}`}
           events={['click']}
@@ -160,43 +160,20 @@ function App() {
           closeEvents={{ click: false }}
         // afterHide={()=>handleEventItemClick(eventInfo)}
         >
-          <EventsCollection events={eventInfo.event._def.extendedProps.events} handleEventItemClick={handleEventItemClick} />
+          {/* <EventsCollection events={eventInfo.event._def.extendedProps.events} handleEventItemClick={handleEventItemClick} /> */}
+          <EventsCollection events={eventInfo.event._def.extendedProps.events} handleEventItemClick={handleEventItemClick} handleDeleteEvent={handleDeleteEvent} handleEditEvent={handleEditEvent} />
+
         </Tooltip>
         {length > 1 ?
-        <div className='eventBox' data-tooltip-id={`my-tooltip-click-${startDateAll}`} style={{ color: '#000', backgroundColor: "#fff", borderLeft: "15px solid blue", borderRadius: "3px", boxShadow: "rgb(0 0 0 / 67%) 0px 2px 25px", padding: "8px", height: 'auto', width: '-webkit-fill-available', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>{length > 1 && <span className='notifi'>{length}</span>}{jobTitle} <br></br> Interviewer: {interviewer}<br></br> Time: {time}</div>
-        :
-        <div className='eventBox' onClick={(e)=>handleEventItemClick(items,'open')} style={{ color: '#000', backgroundColor: "#fff", borderLeft: "15px solid blue", borderRadius: "3px", boxShadow: "rgb(0 0 0 / 67%) 0px 2px 25px", padding: "8px", height: 'auto', width: '-webkit-fill-available', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>{length > 1 && <span className='notifi'>{length}</span>}{jobTitle} <br></br> Interviewer: {interviewer}<br></br> Time: {time}</div>
+          <div className='eventBox' data-tooltip-id={`my-tooltip-click-${startDateAll}`} style={{ color: '#000', backgroundColor: "#fff", borderLeft: "15px solid blue", borderRadius: "3px", boxShadow: "rgb(0 0 0 / 67%) 0px 2px 25px", padding: "8px", height: 'auto', width: 'fit-content', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>{length > 1 && <span className='notifi'>{length}</span>}{jobTitle} <br></br> Interviewer: {interviewer}<br></br> Time: {time}</div>
+          :
+          <div className='eventBox' onClick={(e) => handleEventItemClick(items, 'open')} style={{ color: '#000', backgroundColor: "#fff", borderLeft: "15px solid blue", borderRadius: "3px", boxShadow: "rgb(0 0 0 / 67%) 0px 2px 25px", padding: "8px", height: 'auto', width: 'fit-content', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>{length > 1 && <span className='notifi'>{length}</span>}{jobTitle} <br></br> Interviewer: {interviewer}<br></br> Time: {time}</div>
         }
         {/* <div className='eventBox' data-tooltip-id={`my-tooltip-click-${startDateAll}`} style={{ color: '#000', backgroundColor: "#fff", borderLeft: "15px solid blue", borderRadius: "3px", boxShadow: "rgb(0 0 0 / 67%) 0px 2px 25px", padding: "8px", height: 'auto', width: '-webkit-fill-available', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>{length > 1 && <span className='notifi'>{length}</span>}{jobTitle} <br></br> Interviewer: {interviewer}<br></br> Time: {time}</div> */}
-      </>
+      </div>
     )
   }
-  function adjustSlotHeight() {
-    setTimeout(() => {
-      let timeSlots = document.querySelectorAll(".fc-timegrid-slot");
-      let events = document.querySelectorAll(".fc-event");
-
-      // Reset to default height
-      timeSlots.forEach(slot => (slot.style.height = "40px")); 
-
-      events.forEach(event => {
-          let eventStart = new Date(event.getAttribute("data-start"));
-          let eventEnd = new Date(event.getAttribute("data-end"));
-          let durationInMinutes = (eventEnd - eventStart) / 60000;
-
-          let slotHeight = 40; // Default slot height
-          let requiredHeight = (durationInMinutes / 30) * slotHeight;
-
-          event.style.height = `${requiredHeight}px`;
-      });
-
-      // Auto-adjust FullCalendar height
-      let calendarWrapper = document.querySelector(".fc-timegrid-body");
-      if (calendarWrapper) {
-          calendarWrapper.style.height = "auto";
-      }
-  }, 100);
-}
+  
   return (
     <>
       <FullCalendar
@@ -211,10 +188,9 @@ function App() {
           right: "timeGridDay,timeGridWeek,dayGridMonth,dayGridYear",
         }}
         title={{ year: 'numeric', month: 'long' }}
-        height={'90vh'}
-        expandRows= {'true'}
-        slotHeight =  {100}
-        eventDidMount = {adjustSlotHeight()}
+        // height={'90vh'}
+        // expandRows={'true'}
+        // slotHeight={100}
       />
 
       {eventItem
@@ -232,7 +208,7 @@ function App() {
             width: '40%', boxShadow: '0px 0px 30px 10px grey'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'end' }}><button style={{ backgroundColor: 'blue', borderRadius: '50%', padding: '10px', color: '#fff', border: 'none' }} onClick={closeModal}>X</button></div>
+          <div style={{ display: 'flex', justifyContent: 'end' }}><button style={{ backgroundColor: 'blue', borderRadius: '50%', padding: '10px', color: '#fff', border: 'none', cursor: 'pointer' }} onClick={closeModal}>X</button></div>
           <div className={'single-event-model'}>
             <div className='single-event-model-wrapper'>
               <div className='modal-left'>
@@ -255,7 +231,7 @@ function App() {
           </div>
         </Modal>
       }
-       
+
 
     </>
   )

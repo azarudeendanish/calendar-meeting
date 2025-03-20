@@ -169,6 +169,9 @@
   align-items: center;
   width: 50%;
 }
+.fc .fc-timegrid-slot {
+  height: 3em;
+}
 /* .single-event-job-request {}
 
 .single-event-user {}
