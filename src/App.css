@@ -172,6 +172,9 @@
 .fc .fc-timegrid-slot {
   height: 3em;
 }
+.fc-daygrid-day-events .fc-daygrid-event-harness{
+  position: absolute;
+}
 /* .single-event-job-request {}
 
 .single-event-user {}

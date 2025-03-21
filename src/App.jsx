@@ -35,14 +35,14 @@ const EventItem = ({ eventItem, handleEventItemClick }) => {
         <div style={{ color: 'red', cursor: 'pointer' }} onClick={(e) => handleClick(e, eventItem, 'delete')}><MdDeleteOutline /></div>
       </div>
       <div className={'single-event-item'} onClick={(e) => handleClick(e, eventItem, 'open')} style={{ cursor: 'pointer' }}>
-        <div className='single-event-job-request'>
-          {eventItem.job_id.jobRequest_Title}
+        <div className='single-event-job-request' style={{fontSize: '14px'}}>
+          <b>{eventItem.job_id.jobRequest_Title}</b>
         </div>
         <div className='single-event-user'>
-          {eventItem.summary} | Interviewer: {eventItem.user_det.handled_by.firstName}
+          {eventItem.summary} | <b>Interviewer:</b> {eventItem.user_det.handled_by.firstName}
         </div>
         <div className='single-event-user'>
-          Date: {dateString} | Time: {timeStringStart} - {timeStringEnd}
+          <b>Date:</b> {dateString} | <b>Time:</b> {timeStringStart} - {timeStringEnd}
         </div>
       </div>
     </div>
@@ -151,7 +151,7 @@ function App() {
       return strTime;
     }
     return (
-      <div className='eventHeight' style={{ height: `${!EXCLUDE_HEIGHT.includes(eventInfo.view.type)}` ? `${heightOfEvent}px`: 'auto' }}>
+      <div className='eventHeight' style={{ height: !EXCLUDE_HEIGHT.includes(eventInfo.view.type) ? `${heightOfEvent}px`: 'auto' }}>
         <Tooltip
           id={`my-tooltip-click-${startDateAll}`}
           events={['click']}
@@ -165,9 +165,9 @@ function App() {
 
         </Tooltip>
         {length > 1 ?
-          <div className='eventBox' data-tooltip-id={`my-tooltip-click-${startDateAll}`} style={{ color: '#000', backgroundColor: "#fff", borderLeft: "15px solid blue", borderRadius: "3px", boxShadow: "rgb(0 0 0 / 67%) 0px 2px 25px", padding: "8px", height: 'auto', width: 'max-content', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>{length > 1 && <span className='notifi'>{length}</span>}{jobTitle} <br></br> Interviewer: {interviewer}<br></br> Time: {time}</div>
+          <div className='eventBox' data-tooltip-id={`my-tooltip-click-${startDateAll}`} style={{ color: '#000', backgroundColor: "#fff", borderLeft: "15px solid blue", borderRadius: "3px", boxShadow: "rgb(0 0 0 / 67%) 0px 2px 25px", padding: "8px", height: 'auto', width: 'max-content', overflow: 'hidden', position: 'relative', cursor: 'pointer', fontSize:'14px' }}>{length > 1 && <span className='notifi'>{length}</span>}<b>{jobTitle}</b> <br></br> <b>Interviewer:</b> {interviewer}<br></br> <b>Time:</b> {time}</div>
           :
-          <div className='eventBox' onClick={(e) => handleEventItemClick(items, 'open')} style={{ color: '#000', backgroundColor: "#fff", borderLeft: "15px solid blue", borderRadius: "3px", boxShadow: "rgb(0 0 0 / 67%) 0px 2px 25px", padding: "8px", height: 'auto', width: 'max-content', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>{length > 1 && <span className='notifi'>{length}</span>}{jobTitle} <br></br> Interviewer: {interviewer}<br></br> Time: {time}</div>
+          <div className='eventBox' onClick={(e) => handleEventItemClick(items, 'open')} style={{ color: '#000', backgroundColor: "#fff", borderLeft: "15px solid blue", borderRadius: "3px", boxShadow: "rgb(0 0 0 / 67%) 0px 2px 25px", padding: "8px", height: 'auto', width: 'max-content', overflow: 'hidden', position: 'relative', cursor: 'pointer', fontSize:'14px' }}>{length > 1 && <span className='notifi'>{length}</span>}<b>{jobTitle}</b> <br></br> <b>Interviewer:</b> {interviewer}<br></br> <b>Time:</b> {time}</div>
         }
         {/* <div className='eventBox' data-tooltip-id={`my-tooltip-click-${startDateAll}`} style={{ color: '#000', backgroundColor: "#fff", borderLeft: "15px solid blue", borderRadius: "3px", boxShadow: "rgb(0 0 0 / 67%) 0px 2px 25px", padding: "8px", height: 'auto', width: '-webkit-fill-available', overflow: 'hidden', position: 'relative', cursor: 'pointer' }}>{length > 1 && <span className='notifi'>{length}</span>}{jobTitle} <br></br> Interviewer: {interviewer}<br></br> Time: {time}</div> */}
       </div>
@@ -212,12 +212,12 @@ function App() {
           <div className={'single-event-model'}>
             <div className='single-event-model-wrapper'>
               <div className='modal-left'>
-                <p>Interview With: {eventItem.candidate}</p>
-                <p>Position: {eventItem.position}</p>
-                <p>Created By: {eventItem.createdBy}</p>
-                <p>Interview Date: {eventItem.date}</p>
-                <p>Interview Time: {eventItem.time}</p>
-                <p> Inertview viaL Google Meet</p>
+                <p><b>Interview With: </b>{eventItem.candidate}</p>
+                <p><b>Position:</b> {eventItem.position}</p>
+                <p><b>Created By:</b> {eventItem.createdBy}</p>
+                <p><b>Interview Date:</b> {eventItem.date}</p>
+                <p><b>Interview Time:</b> {eventItem.time}</p>
+                <p>Inertview viaL Google Meet</p>
                 <button className='button--resume btn-primary-outline'> Resume.docx <FaEye /> <MdOutlineFileDownload /></button>
                 <button className='button--adhar btn-primary-outline'> AadharCard <FaEye /> <MdOutlineFileDownload /> </button>
               </div>
